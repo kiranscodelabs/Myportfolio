@@ -1,11 +1,9 @@
 import express from 'express';
-import { loginUser } from '../controllers/userController.js';
+import { registerUser, loginUser } from '../controllers/userController.js';
 
 const router = express.Router();
 
-// @desc    Auth user & get token
-// @route   POST /api/auth/login
-// ✅ SENIOR TIP: Keep the router clean. Just point it to the controller.
+router.post('/register', registerUser);
 router.post('/login', loginUser);
 
 export default router;
