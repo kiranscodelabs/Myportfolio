@@ -1,0 +1,34 @@
+{
+  "name": "myportofolio-server",
+  "version": "1.0.0",
+  "description": "Production-grade MERN Backend",
+  "main": "myportofolio-server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node myportofolio-server.js",
+    "dev": "nodemon myportofolio-server.js"
+  },
+  "keywords": [
+    "mern",
+    "portfolio",
+    "backend"
+  ],
+  "author": "Kiran N C",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.972.0",
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.1.3",
+    "morgan": "^1.10.1",
+    "multer": "^2.0.2",
+    "multer-s3": "^3.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
