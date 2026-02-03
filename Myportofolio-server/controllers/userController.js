@@ -1,33 +1,41 @@
+import User from '../models/User.js';
+import jwt from 'jsonwebtoken';
+
 export const loginUser = async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
-    // 1. Find user and explicitly pull the hidden password
-    const user = await User.findOne({ email }).select('+password'); 
+    // 1. Find user and explicitly select password (which is hidden by default in your schema)
+    const user = await User.findOne({ email }).select('+password');
 
-    // 2. 🛡️ Guard Clause: If no user is found, exit early
-    // This prevents calling .matchPassword on 'null' which crashes the server
+    // 2. Check if user exists
     if (!user) {
       res.status(401);
-      throw new Error('Invalid email or password');
+      return next(new Error('Invalid email or password'));
     }
 
-    // 3. Compare passwords
+    // 3. Compare passwords using the matchPassword method in your User model
     const isMatch = await user.matchPassword(password);
 
     if (isMatch) {
+      // 4. Generate Token (Integrated directly since utils is missing)
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+        expiresIn: '30d',
+      });
+
       res.json({
         _id: user._id,
         name: user.name,
         email: user.email,
-        token: generateToken(user._id),
+        isAdmin: user.isAdmin,
+        token: token,
       });
     } else {
       res.status(401);
-      throw new Error('Invalid email or password');
+      return next(new Error('Invalid email or password'));
     }
   } catch (error) {
-    // Pass to your global error handler (helmet/morgan sync)
+    // This catches issues like JWT_SECRET missing or DB connection drops
     next(error);
   }
 };
