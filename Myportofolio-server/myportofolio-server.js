@@ -24,20 +24,24 @@ app.use(helmet({
 // 🛡️ PRODUCTION CORS: Allow both local and production frontend
 const allowedOrigins = [
   'http://localhost:5173', 
-  process.env.FRONTEND_URL // This will be your Vercel URL
-];
+  'https://myportfolio-kirannc.vercel.app', // Explicitly add this
+  process.env.FRONTEND_URL?.replace(/\/$/, "") // Remove trailing slash if exists
+].filter(Boolean); // Remove any undefined/null values
 
 app.use(cors({
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
+    
+    // Check if origin exists in our allowed list
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      console.log("❌ BLOCKED_ORIGIN:", origin); // Check Render logs to see what's being blocked
+      return callback(new Error('CORS_NOT_ALLOWED'), false);
     }
-    return callback(null, true);
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Added OPTIONS for pre-flight
   credentials: true
 }));
 
