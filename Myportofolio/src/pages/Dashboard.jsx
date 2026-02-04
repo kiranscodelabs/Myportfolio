@@ -31,7 +31,7 @@ export default function Dashboard() {
     fetchDashboardProjects();
   }, []);
 
-  const handleSubmit = async (e) => {
+ const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
@@ -41,23 +41,29 @@ export default function Dashboard() {
       data.append('title', formData.title || '');
       data.append('description', formData.description || '');
       
-      // 🛡️ PRODUCTION FIX: Convert "React, Node" string to an array or clean string
-      // Most MERN backends expect an array. If yours handles strings, this still removes extra spaces.
-      const cleanedTags = formData.techStack.split(',').map(tag => tag.trim()).filter(tag => tag !== "");
+      // Clean tags into an array
+      const cleanedTags = formData.techStack
+        .split(',')
+        .map(tag => tag.trim())
+        .filter(tag => tag !== "");
       
-      // If your backend handles JSON strings in FormData:
+      // 🛡️ Consistency Check: Your controller uses JSON.parse(tags)
       data.append('tags', JSON.stringify(cleanedTags)); 
-      // OR if your backend handles repeated keys:
-      // cleanedTags.forEach(tag => data.append('tags[]', tag));
 
       data.append('githubUrl', formData.githubLink || ''); 
       data.append('liveUrl', formData.liveLink || '');
       
       if (imageFile) {
+        // 🛡️ CRITICAL: This key MUST match 'image' in upload.single('image')
         data.append('image', imageFile); 
       }
 
-      await API.post('/projects', data);
+      // 🛡️ API CALL FIX: Explicitly set headers to null/multipart
+      await API.post('/projects', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data', 
+        },
+      });
 
       alert('🚀 PRODUCTION_DEPLOYMENT_SUCCESSFUL');
       

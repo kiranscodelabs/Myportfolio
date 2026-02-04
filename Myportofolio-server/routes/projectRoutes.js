@@ -1,7 +1,7 @@
 import express from 'express';
 import { getProjects, createProject, deleteProject } from '../controllers/projectController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
-import upload from '../middleware/uploadMiddleware.js'; // Ensure filename matches (upload vs uploadMiddleware)
+import upload from '../middleware/uploadMiddleware.js';
 
 const router = express.Router();
 
@@ -9,11 +9,10 @@ const router = express.Router();
 router.route('/')
   .get(getProjects)
   .post(protect, admin, (req, res, next) => {
-    // 🛡️ Wrapper to catch Multer-specific errors (5MB limit, file type, etc.)
+    // 🛡️ Ensure 'image' here matches the key used in Frontend FormData.append('image', ...)
     upload.single('image')(req, res, (err) => {
       if (err) {
-        res.status(400);
-        return next(new Error(err.message));
+        return res.status(400).json({ message: err.message });
       }
       next();
     });
