@@ -1,60 +1,24 @@
-import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
-// 🛡️ Helper to sign token
-const signToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+const userSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true, select: false },
+  isAdmin: { type: Boolean, required: true, default: false },
+}, { timestamps: true });
+
+// Hash password before saving
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+});
+
+// Match password method
+userSchema.methods.matchPassword = async function (enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// @desc    Register new user
-// @route   POST /api/auth/register
-export const registerUser = async (req, res, next) => {
-  const { name, email, password, isAdmin } = req.body;
-  try {
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      res.status(400);
-      return next(new Error('User already exists'));
-    }
-
-    const user = await User.create({
-      name,
-      email,
-      password,
-      isAdmin: isAdmin || false
-    });
-
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      isAdmin: user.isAdmin,
-      token: signToken(user._id),
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// @desc    Auth user & get token
-// @route   POST /api/auth/login
-export const loginUser = async (req, res, next) => {
-  const { email, password } = req.body;
-  try {
-    const user = await User.findOne({ email }).select('+password');
-
-    if (user && (await user.matchPassword(password))) {
-      res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        isAdmin: user.isAdmin,
-        token: signToken(user._id),
-      });
-    } else {
-      res.status(401);
-      return next(new Error('Invalid email or password'));
-    }
-  } catch (error) {
-    next(error);
-  }
-};
+const User = mongoose.model('User', userSchema);
+export default User;
