@@ -15,7 +15,7 @@ export default function Hero() {
           </div>
           
           <h1 className="text-[clamp(2.25rem,5.5vw,4rem)] font-black text-slate-900 leading-[1.1] tracking-tight">
-            Building <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-cyan-500">production-grade</span> MERN applications.
+           Software Development Engineer <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-cyan-500"> | Building Scalable Systems & High-Performance Backends</span>
           </h1> 
           
           <p className="text-[clamp(1rem,1.2vw,1.25rem)] text-slate-600 max-w-[40rem] leading-relaxed">
