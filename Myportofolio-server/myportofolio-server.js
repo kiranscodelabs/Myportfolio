@@ -23,7 +23,8 @@ app.use(helmet({
 
 // 🛡️ PRODUCTION CORS: Allow both local and production frontend
 const allowedOrigins = [
-  'http://localhost:5173', 
+  'http://localhost:5173',
+  'http://localhost:5174',
   'https://myportfolio-kirannc.vercel.app', // Explicitly add this
   process.env.FRONTEND_URL?.replace(/\/$/, "") // Remove trailing slash if exists
 ].filter(Boolean); // Remove any undefined/null values
